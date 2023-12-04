@@ -1,6 +1,6 @@
 
 
 export function isChar(char: string): boolean{
-   const chars = /[a-z]/i;
-   return chars.test(char)
+
+   return (char >= 'a' &&  char <= 'z' || char >= 'A' && char <= 'Z')
 }
