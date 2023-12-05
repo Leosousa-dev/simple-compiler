@@ -1,70 +1,53 @@
-import { isChar, isDigit, isEmpty } from "../utils";
+import { exit } from "process";
+import { isChar, isDigit, isEmpty, isParent } from "../utils";
 
 export default function lexer(input: string) {
   const tokens: Array<object> = [];
-  let index: number = 0;
-  let operator: string = "";
-  let digit: string = "";
+  let current: number = 0;
 
-  for (index; input.length > index; index++) {
-    let char: string = input[index];
 
-    if (!isEmpty(char)) {
-      if (char === "(") {
-        tokens.push({
-          kind: "lf_parent",
-          value: char
-        });
-      } else if (char === ")") {
-        tokens.push({
-            kind: "rt_parent",
-            value: char
-        });
-      } else if (isChar(char)) {
-        operator += char;
-      } else if (isDigit(char)) {
-         digit+= char;
-      } else if (char === ",") {
-        tokens.push({
-            kind: 'list_sp',
-            value: char
-        })
+  while (current < input.length) {
+    let char = input[current];
 
-        if (digit) {
-         tokens.push({
-           kind: "number",
-           value: Number(digit)
-         });
-         digit = "";
-       }
-      } else {
-        console.error(`Unrecognized character: ${char}`);
-        break;
-      }
+    if (isParent(char)) {
+      tokens.push({
+        type: 'paren',
+        value: '('
+      });
+      current++;
+      continue;
     }
-  }
+    if(isChar(char)){
+      let value = '';
+      while (isChar(char)) {
+        value += char;
+        char = input[++current];
+      }
+      tokens.push({
+        type: 'name',
+        value
+      });
+      continue;
+    }
+    if(isEmpty(char)){
+      current++;
+      continue;
+    }
+    if(isDigit(char)){
+      let value = '';
 
-  if (operator) {
-    tokens.push({
-      kind: "op",
-      value: operator
-    });
-  }
+      while (isDigit(char)) {
+        value += char;
+        char = input[++current];
+      }
+      tokens.push({
+        type: 'number',
+        value: value
+      });
+      continue;
+    }
 
-  if (digit) {
-    tokens.push({
-      kind: "number",
-      value: Number(digit)
-    });
-    digit = ""
+    throw new TypeError(`Unknown char: '${char}'`);
   }
-
-  if (index === input.length) {
-    tokens.push({
-      kind: "EOF",
-      value: "EOF"
-    });
-  }
-
   return tokens;
 }
