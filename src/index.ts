@@ -1,6 +1,6 @@
 import compiler from "./compiler/compiler";
 
-const input: string = "(sum(4,5))"
+const input: string = "(sum (20,3))"
 
 const out = compiler(input);
 
